@@ -1,3 +1,10 @@
+// Package steamworks wraps the Steamworks API.
+//
+// See the official API documentation on the Steam Partner website:
+// <https://partner.steamgames.com/doc/api>
+//
+// This package attempts to make API functions available in a more
+// idiomatic Go style.
 package steamworks
 
 import (

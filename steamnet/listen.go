@@ -15,9 +15,10 @@ import (
 //
 // Multiple listeners may be registered simultaneously, and connections will be accepted if any listener returns true.
 func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
-	return internal.RegisterCallback_P2PSessionRequest(func(data internal.P2PSessionRequest) {
-		if accept(steamworks.SteamID(data.SteamIDRemote)) {
-			internal.ISteamNetworking_AcceptP2PSessionWithUser(data.SteamIDRemote)
+	return internal.RegisterCallback_P2PSessionRequest(func(data *internal.P2PSessionRequest) {
+		id := data.SteamIDRemote
+		if accept(steamworks.SteamID(id)) {
+			internal.SteamAPI_ISteamNetworking_AcceptP2PSessionWithUser(id)
 		}
 	})
 }
@@ -28,5 +29,5 @@ func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
 //
 // P2P packet relay is allowed by default.
 func SetAllowPacketRelay(allow bool) {
-	internal.ISteamNetworking_AllowP2PPacketRelay(allow)
+	internal.SteamAPI_ISteamNetworking_AllowP2PPacketRelay(allow)
 }

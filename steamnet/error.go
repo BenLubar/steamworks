@@ -9,11 +9,12 @@ import (
 //
 // All queued packets unsent at this point will be dropped, further attempts to send will retry making the connection (but will be dropped if we fail again).
 func RegisterErrorCallback(f func(steamworks.SteamID, error)) steamworks.Registration {
-	return internal.RegisterCallback_P2PSessionConnectFail(func(data internal.P2PSessionConnectFail) {
-		f(steamworks.SteamID(data.SteamIDRemote), toError(data.EP2PSessionError))
+	return internal.RegisterCallback_P2PSessionConnectFail(func(data *internal.P2PSessionConnectFail) {
+		f(steamworks.SteamID(data.SteamIDRemote), toError(uint8(data.EP2PSessionError)))
 	})
 }
 
+// Error represents a connection error in the Steam P2P API.
 type Error uint8
 
 var (

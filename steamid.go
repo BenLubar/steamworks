@@ -7,7 +7,7 @@ package steamworks
 
 import "strconv"
 
-// Most of this code is cannibalized from the SteamID.php.
+// Most of this code is cannibalized from SteamID.php.
 // <https://github.com/xPaw/SteamID.php>
 
 type AccountType uint8
@@ -41,15 +41,15 @@ const (
 type AccountInstance uint32
 
 const (
-	InstanceDesktop AccountInstance = 1
-	InstanceConsole AccountInstance = 2
-	InstanceWeb     AccountInstance = 4
+	InstanceDesktop AccountInstance = 1<<0
+	InstanceConsole AccountInstance = 1<<1
+	InstanceWeb     AccountInstance = 1<<2
 
 	// Special flags for Chat accounts - they go in the top 8 bits
 	// of the steam ID's "instance", leaving 12 for the actual instances
-	InstanceFlagClan     AccountInstance = 0x80000
-	InstanceFlagLobby    AccountInstance = 0x40000
-	InstanceFlagMMSLobby AccountInstance = 0x20000
+	InstanceFlagClan     AccountInstance = 1<<19
+	InstanceFlagLobby    AccountInstance = 1<<18
+	InstanceFlagMMSLobby AccountInstance = 1<<17
 )
 
 type SteamID uint64

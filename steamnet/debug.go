@@ -31,24 +31,24 @@ type SessionState struct {
 // Returns nil if there was no open session with the specified user.
 func GetSessionState(user steamworks.SteamID) *SessionState {
 	var state internal.P2PSessionState
-	if !internal.ISteamNetworking_GetP2PSessionState(internal.SteamID(user), &state) {
+	if !internal.SteamAPI_ISteamNetworking_GetP2PSessionState(internal.SteamID(user), &state) {
 		return nil
 	}
 
 	remoteIP := make(net.IP, 4)
-	binary.BigEndian.PutUint32(remoteIP, state.RemoteIP)
+	binary.BigEndian.PutUint32(remoteIP, uint32(state.NRemoteIP))
 	if remoteIP.IsUnspecified() {
 		remoteIP = nil
 	}
 
 	return &SessionState{
-		ConnectionActive:     state.ConnectionActive != 0,
-		Connecting:           state.Connecting != 0,
-		LastError:            toError(state.EP2PSessionError),
-		UsingRelay:           state.UsingRelay != 0,
-		BytesQueuedForSend:   int(state.BytesQueuedForSend),
-		PacketsQueuedForSend: int(state.PacketsQueuedForSend),
+		ConnectionActive:     state.BConnectionActive != 0,
+		Connecting:           state.BConnecting != 0,
+		LastError:            toError(uint8(state.EP2PSessionError)),
+		UsingRelay:           state.BUsingRelay != 0,
+		BytesQueuedForSend:   int(state.NBytesQueuedForSend),
+		PacketsQueuedForSend: int(state.NPacketsQueuedForSend),
 		RemoteIP:             remoteIP,
-		RemotePort:           int(state.RemotePort),
+		RemotePort:           int(state.NRemotePort),
 	}
 }
