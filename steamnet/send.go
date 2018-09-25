@@ -1,7 +1,7 @@
 package steamnet
 
 import (
-	"errors"
+	"runtime"
 	"unsafe"
 
 	"github.com/BenLubar/steamworks"
@@ -37,10 +37,28 @@ const (
 
 // Possible errors that can be returned by SendPacket.
 var (
-	ErrTargetUserInvalid = errors.New("steamnet: target Steam ID is invalid")
-	ErrPacketTooLarge    = errors.New("steamnet: packet is too large for the send type")
-	ErrBufferFull        = errors.New("steamnet: too many bytes are queued to be sent")
+	ErrTargetUserInvalid = sendError{error: "steamnet: target Steam ID is invalid", temporary: false, timeout: false}
+	ErrPacketTooLarge    = sendError{error: "steamnet: packet is too large for the send type", temporary: false, timeout: false}
+	ErrBufferFull        = sendError{error: "steamnet: too many bytes are queued to be sent", temporary: true, timeout: false}
 )
+
+type sendError struct {
+	error     string
+	temporary bool
+	timeout   bool
+}
+
+func (err sendError) Error() string {
+	return err.error
+}
+
+func (err sendError) Temporary() bool {
+	return err.temporary
+}
+
+func (err sendError) Timeout() bool {
+	return err.timeout
+}
 
 // SendPacket sends a P2P packet to the specified user.
 //
@@ -67,6 +85,7 @@ func SendPacket(user steamworks.SteamID, data []byte, sendType Reliability, chan
 		}
 		return ErrBufferFull
 	}
+	runtime.KeepAlive(&data[0])
 
 	return nil
 }

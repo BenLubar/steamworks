@@ -19,13 +19,13 @@ type Error internal.EP2PSessionError
 
 var (
 	// ErrNotRunningApp is returned if the target user is not running the same game.
-	ErrNotRunningApp error = Error(1)
+	ErrNotRunningApp error = Error(internal.EP2PSessionError_NotRunningApp)
 	// ErrNoRightsToApp is returned if the local user doesn't own the app that is running.
-	ErrNoRightsToApp error = Error(2)
+	ErrNoRightsToApp error = Error(internal.EP2PSessionError_NoRightsToApp)
 	// ErrDestinationNotLoggedIn is returned if the target user isn't connected to Steam.
-	ErrDestinationNotLoggedIn error = Error(3)
+	ErrDestinationNotLoggedIn error = Error(internal.EP2PSessionError_DestinationNotLoggedIn)
 	// ErrTimeout is returned if the connection timed out because the target user didn't respond.
-	ErrTimeout error = Error(4)
+	ErrTimeout error = Error(internal.EP2PSessionError_Timeout)
 )
 
 func (err Error) Error() string {
