@@ -11,6 +11,8 @@ import (
 //
 // Returns true if the channel was successfully closed; otherwise, false if there was no active session or channel with the user.
 func CloseChannel(user steamworks.SteamID, channel int32) bool {
+	defer internal.Cleanup()()
+
 	return internal.SteamAPI_ISteamNetworking_CloseP2PChannelWithUser(internal.SteamID(user), channel)
 }
 
@@ -20,5 +22,7 @@ func CloseChannel(user steamworks.SteamID, channel int32) bool {
 //
 // Returns true if the session was successfully closed; otherwise, false if no connection was open with the user.
 func CloseAllChannels(user steamworks.SteamID) bool {
+	defer internal.Cleanup()()
+
 	return internal.SteamAPI_ISteamNetworking_CloseP2PSessionWithUser(internal.SteamID(user))
 }

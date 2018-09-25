@@ -34,9 +34,34 @@ var callbackShutdown chan<- chan<- struct{}
 // If it returns false, then your game was launched by the Steam client and no action needs to be taken. One exception is if a steam_appid.txt
 // file is present then this will return false regardless. This allows you to develop and test without launching your game through the Steam client.
 // Make sure to remove the steam_appid.txt file when uploading the game to your Steam depot!
+//
+// Example:
+//
+//    const appId = ...
+//
+//    func main() {
+//        if steamworks.RestartAppIfNecessary(appId) {
+//            return
+//        }
+//
+//        if err := steamworks.Init(true); err != nil {
+//            handleFatalError(err)
+//        }
+//        defer steamworks.Shutdown()
+//
+//        mainGameLoop()
+//    }
 func RestartAppIfNecessary(ownAppID uint32) bool {
+	defer internal.Cleanup()()
+
 	return internal.SteamAPI_RestartAppIfNecessary(ownAppID)
 }
+
+// Errors that can be returned by Init.
+var (
+	ErrSteamNotRunning = errors.New("steamworks: the Steam client is not running")
+	errSteamInitFailed = errors.New("steamworks: failed to initialize") // TODO: be more specific
+)
 
 // Init initializes the Steamworks API.
 //
@@ -59,7 +84,10 @@ func RestartAppIfNecessary(ownAppID uint32) bool {
 // - Your App ID is not completely set up, i.e. in Release State: Unavailable, or it's missing default packages.
 func Init(startCallbackGoroutine bool) error {
 	if !internal.SteamAPI_Init() {
-		return errors.New("steamworks: SteamAPI_Init failed!") // TODO: be more specific
+		if !internal.SteamAPI_IsSteamRunning() {
+			return ErrSteamNotRunning
+		}
+		return errSteamInitFailed
 	}
 
 	stopCallbackGoroutine()
@@ -100,6 +128,9 @@ func runCallbacksForever(quit <-chan chan<- struct{}) {
 	runtime.LockOSThread()
 	defer runtime.UnlockOSThread()
 
+	ticker := time.NewTicker(time.Millisecond)
+	defer ticker.Stop()
+
 	for {
 		internal.SteamAPI_RunCallbacks()
 
@@ -107,8 +138,7 @@ func runCallbacksForever(quit <-chan chan<- struct{}) {
 		case ch := <-quit:
 			ch <- struct{}{}
 			return
-		default:
-			time.Sleep(time.Millisecond)
+		case <-ticker.C:
 		}
 	}
 }

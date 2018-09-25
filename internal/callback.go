@@ -6,6 +6,7 @@ package internal
 */
 import "C"
 import (
+	"runtime"
 	"sync"
 	"unsafe"
 )
@@ -14,6 +15,20 @@ var (
 	callbackLock sync.Mutex
 	callbacks    = make(map[C.CallbackID_t]func(unsafe.Pointer, uintptr, bool, SteamAPICall))
 )
+
+// Cleanup should be called as follows:
+//
+//    defer internal.Cleanup()()
+//
+// It locks the current OS thread and releases Steam API thread-local memory in the returned func.
+func Cleanup() func() {
+	runtime.LockOSThread()
+
+	return func() {
+		SteamAPI_ReleaseCurrentThreadMemory()
+		runtime.UnlockOSThread()
+	}
+}
 
 //export onCallback
 func onCallback(cbid C.CallbackID_t, data unsafe.Pointer, dataLength uintptr, ioFailure bool, apiCallID SteamAPICall) {

@@ -1336,6 +1336,8 @@ extern void SteamAPI_Shutdown();
 extern bool SteamAPI_RestartAppIfNecessary(uint32 unOwnAppID);
 extern void SteamAPI_ReleaseCurrentThreadMemory();
 extern void SteamAPI_RunCallbacks();
+extern bool SteamAPI_IsSteamRunning();
+extern bool SteamID_IsValid(CSteamID); // wrapper
 extern intp GetSteamClient(); // wrapper
 extern HSteamPipe SteamAPI_ISteamClient_CreateSteamPipe(intp instancePtr);
 extern bool SteamAPI_ISteamClient_BReleaseSteamPipe(intp instancePtr, HSteamPipe hSteamPipe);

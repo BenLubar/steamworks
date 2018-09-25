@@ -12,14 +12,14 @@ import (
 // This is the under-the-hood info about what's going on with a previous call to SendP2PPacket.
 // This typically shouldn't be needed except for debugging purposes.
 type SessionState struct {
-	ConnectionActive     bool   // Do we have an active open connection with the user (true) or not (false)?
-	Connecting           bool   // Are we currently trying to establish a connection with the user (true) or not (false)?
 	LastError            error  // Last error recorded on the socket.
-	UsingRelay           bool   // Is this connection going through a Steam relay server (true) or not (false)?
-	BytesQueuedForSend   int    // The number of bytes queued up to be sent to the user.
-	PacketsQueuedForSend int    // The number of packets queued up to be sent to the user.
 	RemoteIP             net.IP // The IP of remote host if set. Could be a Steam relay server. This only exists for compatibility with older authentication api's.
 	RemotePort           int    // The Port of remote host if set. Could be a Steam relay server. This only exists for compatibility with older authentication api's.
+	BytesQueuedForSend   int    // The number of bytes queued up to be sent to the user.
+	PacketsQueuedForSend int    // The number of packets queued up to be sent to the user.
+	ConnectionActive     bool   // Do we have an active open connection with the user (true) or not (false)?
+	Connecting           bool   // Are we currently trying to establish a connection with the user (true) or not (false)?
+	UsingRelay           bool   // Is this connection going through a Steam relay server (true) or not (false)?
 }
 
 // GetSessionState returns a structure with details about the session like whether or not there is an active connection,
@@ -30,6 +30,8 @@ type SessionState struct {
 //
 // Returns nil if there was no open session with the specified user.
 func GetSessionState(user steamworks.SteamID) *SessionState {
+	defer internal.Cleanup()()
+
 	var state internal.P2PSessionState
 	if !internal.SteamAPI_ISteamNetworking_GetP2PSessionState(internal.SteamID(user), &state) {
 		return nil
@@ -44,7 +46,7 @@ func GetSessionState(user steamworks.SteamID) *SessionState {
 	return &SessionState{
 		ConnectionActive:     state.BConnectionActive != 0,
 		Connecting:           state.BConnecting != 0,
-		LastError:            toError(uint8(state.EP2PSessionError)),
+		LastError:            toError(internal.EP2PSessionError(state.EP2PSessionError)),
 		UsingRelay:           state.BUsingRelay != 0,
 		BytesQueuedForSend:   int(state.NBytesQueuedForSend),
 		PacketsQueuedForSend: int(state.NPacketsQueuedForSend),

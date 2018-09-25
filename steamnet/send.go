@@ -13,12 +13,12 @@ import (
 type Reliability = internal.EP2PSend
 
 const (
-	// Basic UDP send. Packets can't be bigger than 1200 bytes (your typical MTU size). Can be lost, or arrive out of order (rare).
+	// Unreliable is a basic UDP send. Packets can't be bigger than 1200 bytes (your typical MTU size). Can be lost, or arrive out of order (rare).
 	// The sending API does have some knowledge of the underlying connection, so if there is no NAT-traversal accomplished or
 	// there is a recognized adjustment happening on the connection, the packet will be batched until the connection is open again.
 	Unreliable = internal.EP2PSend_Unreliable
 
-	// As above, but if the underlying P2P connection isn't yet established the packet will just be thrown away.
+	// UnreliableNoDelay works like Unreliable, but if the underlying P2P connection isn't yet established the packet will just be thrown away.
 	// Using this on the first packet sent to a remote host almost guarantees the packet will be dropped.
 	// This is only really useful for kinds of data that should never buffer up, e.g. voice payload packets
 	UnreliableNoDelay = internal.EP2PSend_UnreliableNoDelay
@@ -27,7 +27,7 @@ const (
 	// Does fragmentation/re-assembly of messages under the hood, as well as a sliding window for efficient sends of large chunks of data.
 	Reliable = internal.EP2PSend_Reliable
 
-	// As above, but applies the Nagle algorithm to the send - sends will accumulate until the current MTU size (typically ~1200 bytes, but can change)
+	// ReliableWithBuffering works like Reliable, but applies the Nagle algorithm to the send - sends will accumulate until the current MTU size (typically ~1200 bytes, but can change)
 	// or ~200ms has passed (Nagle algorithm). This is useful if you want to send a set of smaller messages but have the coalesced into a single packet.
 	//
 	// Since the reliable stream is all ordered, you can do several small message sends with ReliableWithBuffering and then do a normal Reliable
@@ -56,6 +56,8 @@ var (
 // Note that a nil return value does not mean the packet was successfully received. If the packet is not received
 // after a timeout of 20 seconds, an error will be sent to the function registered with RegisterErrorCallback.
 func SendPacket(user steamworks.SteamID, data []byte, sendType Reliability, channel int32) error {
+	defer internal.Cleanup()()
+
 	if !internal.SteamAPI_ISteamNetworking_SendP2PPacket(internal.SteamID(user), unsafe.Pointer(&data[0]), uint32(len(data)), sendType, channel) {
 		if !user.IsValid() {
 			return ErrTargetUserInvalid

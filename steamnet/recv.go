@@ -16,6 +16,10 @@ var packetLock sync.Mutex
 //
 // This call is non-blocking. It will return (nil, 0) if no data is available.
 func ReadPacket(channel int32) ([]byte, steamworks.SteamID) {
+	defer internal.Cleanup()()
+
+	// Although the call is non-blocking, it would be bad if another thread called this function at the same time.
+	// The lock is used to ensure that only one non-blocking call is active at a time.
 	packetLock.Lock()
 	defer packetLock.Unlock()
 
@@ -25,12 +29,12 @@ func ReadPacket(channel int32) ([]byte, steamworks.SteamID) {
 	}
 
 	buffer := make([]byte, size)
-	var steamID steamworks.SteamID
-	if !internal.SteamAPI_ISteamNetworking_ReadP2PPacket(unsafe.Pointer(&buffer[0]), size, &size, (*internal.SteamID)(&steamID), channel) {
+	var steamID internal.SteamID
+	if !internal.SteamAPI_ISteamNetworking_ReadP2PPacket(unsafe.Pointer(&buffer[0]), size, &size, &steamID, channel) {
 		panic("steamnet: packet was not actually available")
 	}
 	if int(size) != len(buffer) {
 		panic("steamnet: packet size mismatch")
 	}
-	return buffer, steamID
+	return buffer, steamworks.SteamID(steamID)
 }

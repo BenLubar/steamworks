@@ -6,6 +6,7 @@
 
 typedef long long intp;
 
+extern "C" bool SteamID_IsValid(uint64 id) { return CSteamID(id).IsValid(); }
 extern "C" intp GetSteamClient() { return reinterpret_cast<intp>(SteamClient()); }
 extern "C" intp GetSteamUser() { return reinterpret_cast<intp>(SteamUser()); }
 extern "C" intp GetSteamGameServer() { return reinterpret_cast<intp>(SteamGameServer()); }

@@ -23,7 +23,7 @@ func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
 	})
 }
 
-// Allow or disallow P2P connections to fall back to being relayed through the Steam servers if a direct connection or NAT-traversal cannot be established.
+// SetAllowPacketRelay allows or disallows P2P connections to fall back to being relayed through the Steam servers if a direct connection or NAT-traversal cannot be established.
 //
 // This only applies to connections created after setting this value, or to existing connections that need to automatically reconnect after this value is set.
 //
