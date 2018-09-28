@@ -1,0 +1,5 @@
+{
+    "disable": ["gotype"],
+    "skip": ["internal"],
+    "exclude": ["Use of unsafe calls should be audited,LOW,HIGH"]
+}
