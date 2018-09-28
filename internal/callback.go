@@ -3,10 +3,12 @@ package internal
 /*
 #include "api.gen.h"
 #include "callback.h"
+#include <stdlib.h>
 */
 import "C"
 import (
 	"runtime"
+	"strconv"
 	"sync"
 	"unsafe"
 )
@@ -62,3 +64,46 @@ func (r registeredCallback) Unregister() {
 
 	C.Unregister_Callback(cbid)
 }
+
+//export warningMessageHook
+func warningMessageHook(severity C.int, debugText *C.char) {
+	msg := C.GoString(debugText)
+	switch severity {
+	case 0:
+		OnDebugMessage(msg)
+	case 1:
+		OnWarningMessage(msg)
+	default:
+		panic("steamworks: unexpected message level " + strconv.FormatInt(int64(severity), 10) + ": " + msg)
+	}
+}
+
+// Message hook stubs (overwritten by steamutils)
+var (
+	OnDebugMessage   = func(string) {}
+	OnWarningMessage = func(string) {}
+)
+
+func init() {
+	C.SetWarningMessageHookGo()
+}
+
+// Helpful C functions for other packages to use internally:
+
+// Malloc wraps C.malloc.
+func Malloc(size uintptr) unsafe.Pointer { return C.malloc(C.size_t(size)) }
+
+// Free wraps C.free.
+func Free(ptr unsafe.Pointer) { C.free(ptr) }
+
+// CChar is a C char.
+type CChar = C.char
+
+// CString wraps C.CString.
+func CString(str string) *C.char { return C.CString(str) }
+
+// GoString wraps C.GoString.
+func GoString(str *C.char) string { return C.GoString(str) }
+
+// GoStringN wraps C.GoStringN.
+func GoStringN(str *C.char, maxSize uintptr) string { return C.GoStringN(str, C.int(maxSize)) }

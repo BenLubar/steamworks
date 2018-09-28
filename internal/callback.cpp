@@ -88,3 +88,11 @@ extern "C" void Unregister_Callback(CallbackID_t callback_id)
 	std::lock_guard<std::mutex> lock(callbacks_lock);
 	callbacks.erase(callback_id);
 }
+
+// Implemented in Go
+extern "C" void warningMessageHook(int, const char *);
+
+extern "C" void SetWarningMessageHookGo()
+{
+	SteamUtils()->SetWarningMessageHook(&warningMessageHook);
+}

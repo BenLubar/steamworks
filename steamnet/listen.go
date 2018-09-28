@@ -1,5 +1,7 @@
 // Package steamnet wraps Steam's peer-to-peer networking API.
 //
+// This package works in both clients and servers.
+//
 // See the Steam Networking documentation for more details.
 // <https://partner.steamgames.com/doc/features/multiplayer/networking>
 package steamnet
@@ -15,12 +17,12 @@ import (
 //
 // Multiple listeners may be registered simultaneously, and connections will be accepted if any listener returns true.
 func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
-	return internal.RegisterCallback_P2PSessionRequest(func(data *internal.P2PSessionRequest) {
+	return internal.RegisterCallback_P2PSessionRequest(func(data *internal.P2PSessionRequest, _ bool) {
 		id := data.SteamIDRemote
 		if accept(steamworks.SteamID(id)) {
 			internal.SteamAPI_ISteamNetworking_AcceptP2PSessionWithUser(id)
 		}
-	})
+	}, 0)
 }
 
 // SetAllowPacketRelay allows or disallows P2P connections to fall back to being relayed through the Steam servers if a direct connection or NAT-traversal cannot be established.
