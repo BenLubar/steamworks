@@ -132,7 +132,7 @@ const (
 // UseGameSocketShare is a placeholder value for queryPort that means the game
 // is responsible for sending and receiving UDP packets for the master server
 // updater.
-const UseGameSocketShare = internal.MasterServerUpdaterPort_UseGameSocketShare
+const UseGameSocketShare = ^uint16(0)
 
 // InitServer initializes the ISteamGameServer interface object, and sets
 // server properties which may not be changed.
