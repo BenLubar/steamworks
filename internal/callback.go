@@ -84,7 +84,9 @@ var (
 	OnWarningMessage = func(string) {}
 )
 
-func init() {
+// SetWarningMessageHook sets the C function pointer to make OnDebugMessage and
+// OnWarningMessage work.
+func SetWarningMessageHook() {
 	C.SetWarningMessageHookGo()
 }
 

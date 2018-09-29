@@ -54,6 +54,8 @@ func (hr hookRegistration) Unregister() {
 }
 
 func registerMessageHook(phooks *[]func(string), f func(string)) hookRegistration {
+	initOnce.Do(doInit)
+
 	messageHookLock.Lock()
 	index := len(*phooks)
 	*phooks = append(*phooks, f)
@@ -76,4 +78,10 @@ func RegisterDebugMessageHook(f func(string)) steamworks.Registration {
 // produces a warning message.
 func RegisterWarningMessageHook(f func(string)) steamworks.Registration {
 	return registerMessageHook(&warningMessageHooks, f)
+}
+
+var initOnce sync.Once
+
+func doInit() {
+	internal.SetWarningMessageHook()
 }
