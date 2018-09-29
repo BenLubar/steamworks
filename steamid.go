@@ -67,7 +67,7 @@ const (
 )
 
 // SteamID is a 64-bit ID representing an object within the Steam "multiverse".
-type SteamID internal.SteamID
+type SteamID uint64
 
 func (id SteamID) String() string {
 	return id.Steam2String()

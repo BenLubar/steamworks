@@ -122,6 +122,8 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 	writehf("#include <stdint.h>\n")
 	writehf("typedef int CallbackID_t;\n")
 	var exportTypes []string
+	longTypes := make(map[string]bool)
+	ulongTypes := make(map[string]bool)
 	for _, t := range apiData.Typedefs {
 		if strings.ContainsAny(t.Type, "[(") {
 			continue
@@ -157,10 +159,19 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 			t.Type = t.Typedef + "tr_t"
 		}
 
+		switch t.Type {
+		case "int64", "int64_t", "lint64", "long long", "long int":
+			longTypes[t.Typedef] = true
+		case "uint64", "uint64_t", "ulint64", "unsigned long long", "unsigned long int":
+			ulongTypes[t.Typedef] = true
+		}
+
 		writehf("typedef %s %s;\n", t.Type, t.Typedef)
 	}
 	writehf("typedef uint64 CSteamID;\n")
+	ulongTypes["CSteamID"] = true
 	writehf("typedef uint64 CGameID;\n")
+	ulongTypes["CGameID"] = true
 	for _, e := range apiData.Enums {
 		if i := strings.LastIndex(e.Enumname, "::"); i != -1 {
 			e.Enumname = e.Enumname[i+len("::"):]
@@ -178,8 +189,12 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 	}
 	writehf("#if defined(__linux__) || defined(__APPLE__)\n")
 	writehf("#pragma pack(push, 4)\n")
+	writehf("typedef struct uint64aligned { uint32_t value[2]; } uint64aligned;\n")
+	writehf("typedef struct int64aligned { uint32_t value[2]; } int64aligned;\n")
 	writehf("#else\n")
 	writehf("#pragma pack(push, 8)\n")
+	writehf("typedef struct uint64aligned { uint64_t value[1]; } uint64aligned;\n")
+	writehf("typedef struct int64aligned { int64_t value[1]; } int64aligned;\n")
 	writehf("#endif\n")
 	for _, s := range apiData.Structs {
 		if s.Struct[0] == 'C' && ((s.Struct[1] >= 'A' && s.Struct[1] <= 'Z') || strings.Contains(s.Struct, "::") || strings.HasSuffix(s.Struct, "ID")) {
@@ -200,6 +215,10 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 			}
 			if typeA == "_Bool" {
 				typeA = "bool"
+			} else if longTypes[typeA] {
+				typeA = "int64aligned"
+			} else if ulongTypes[typeA] {
+				typeA = "uint64aligned"
 			}
 			f.Fieldname = strings.Title(strings.TrimPrefix(f.Fieldname, "m_"))
 			writehf("\t%s %s%s;\n", typeA, f.Fieldname, typeB)

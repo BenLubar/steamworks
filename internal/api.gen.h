@@ -344,12 +344,16 @@ typedef struct SteamShutdown_t SteamShutdown_t;
 typedef struct BroadcastUploadStart_t BroadcastUploadStart_t;
 #if defined(__linux__) || defined(__APPLE__)
 #pragma pack(push, 4)
+typedef struct uint64aligned { uint32_t value[2]; } uint64aligned;
+typedef struct int64aligned { uint32_t value[2]; } int64aligned;
 #else
 #pragma pack(push, 8)
+typedef struct uint64aligned { uint64_t value[1]; } uint64aligned;
+typedef struct int64aligned { int64_t value[1]; } int64aligned;
 #endif
 struct ValvePackingSentinel_t {
 	uint32 U32;
-	uint64 U64;
+	uint64aligned U64;
 	uint16 U16;
 	double D;
 };
@@ -374,13 +378,13 @@ struct ClientGameServerDeny_t {
 	uint32 UReason;
 };
 struct ValidateAuthTicketResponse_t {
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	EAuthSessionResponse EAuthSessionResponse;
-	CSteamID OwnerSteamID;
+	uint64aligned OwnerSteamID;
 };
 struct MicroTxnAuthorizationResponse_t {
 	uint32 UnAppID;
-	uint64 UlOrderID;
+	uint64aligned UlOrderID;
 	uint8 BAuthorized;
 };
 struct EncryptedAppTicketResponse_t {
@@ -397,18 +401,18 @@ struct StoreAuthURLResponse_t {
 	char SzURL[512];
 };
 struct FriendGameInfo_t {
-	CGameID GameID;
+	uint64aligned GameID;
 	uint32 UnGameIP;
 	uint16 UsGamePort;
 	uint16 UsQueryPort;
-	CSteamID SteamIDLobby;
+	uint64aligned SteamIDLobby;
 };
 struct FriendSessionStateInfo_t {
 	uint32 UiOnlineSessionInstances;
 	uint8 UiPublishedToFriendsSessionInstance;
 };
 struct PersonaStateChange_t {
-	uint64 UlSteamID;
+	uint64aligned UlSteamID;
 	int NChangeFlags;
 };
 struct GameOverlayActivated_t {
@@ -419,40 +423,40 @@ struct GameServerChangeRequested_t {
 	char RgchPassword[64];
 };
 struct GameLobbyJoinRequested_t {
-	CSteamID SteamIDLobby;
-	CSteamID SteamIDFriend;
+	uint64aligned SteamIDLobby;
+	uint64aligned SteamIDFriend;
 };
 struct AvatarImageLoaded_t {
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	int IImage;
 	int IWide;
 	int ITall;
 };
 struct ClanOfficerListResponse_t {
-	CSteamID SteamIDClan;
+	uint64aligned SteamIDClan;
 	int COfficers;
 	uint8 BSuccess;
 };
 struct FriendRichPresenceUpdate_t {
-	CSteamID SteamIDFriend;
+	uint64aligned SteamIDFriend;
 	AppId_t NAppID;
 };
 struct GameRichPresenceJoinRequested_t {
-	CSteamID SteamIDFriend;
+	uint64aligned SteamIDFriend;
 	char RgchConnect[256];
 };
 struct GameConnectedClanChatMsg_t {
-	CSteamID SteamIDClanChat;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDClanChat;
+	uint64aligned SteamIDUser;
 	int IMessageID;
 };
 struct GameConnectedChatJoin_t {
-	CSteamID SteamIDClanChat;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDClanChat;
+	uint64aligned SteamIDUser;
 };
 struct GameConnectedChatLeave_t {
-	CSteamID SteamIDClanChat;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDClanChat;
+	uint64aligned SteamIDUser;
 	bool BKicked;
 	bool BDropped;
 };
@@ -460,26 +464,26 @@ struct DownloadClanActivityCountsResult_t {
 	bool BSuccess;
 };
 struct JoinClanChatRoomCompletionResult_t {
-	CSteamID SteamIDClanChat;
+	uint64aligned SteamIDClanChat;
 	EChatRoomEnterResponse EChatRoomEnterResponse;
 };
 struct GameConnectedFriendChatMsg_t {
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 	int IMessageID;
 };
 struct FriendsGetFollowerCount_t {
 	EResult EResult;
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	int NCount;
 };
 struct FriendsIsFollowing_t {
 	EResult EResult;
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	bool BIsFollowing;
 };
 struct FriendsEnumerateFollowingList_t {
 	EResult EResult;
-	CSteamID RgSteamID[50];
+	uint64aligned RgSteamID[50];
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
 };
@@ -492,7 +496,7 @@ struct LowBatteryPower_t {
 	uint8 NMinutesBatteryLeft;
 };
 struct SteamAPICallCompleted_t {
-	SteamAPICall_t HAsyncCall;
+	uint64aligned HAsyncCall;
 	int ICallback;
 	uint32 CubParam;
 };
@@ -530,7 +534,7 @@ struct gameserveritem_t {
 	int NServerVersion;
 	char SzServerName[64];
 	char SzGameTags[128];
-	CSteamID SteamID;
+	uint64aligned SteamID;
 };
 struct FavoritesListChanged_t {
 	uint32 NIP;
@@ -542,36 +546,36 @@ struct FavoritesListChanged_t {
 	AccountID_t UnAccountId;
 };
 struct LobbyInvite_t {
-	uint64 UlSteamIDUser;
-	uint64 UlSteamIDLobby;
-	uint64 UlGameID;
+	uint64aligned UlSteamIDUser;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlGameID;
 };
 struct LobbyEnter_t {
-	uint64 UlSteamIDLobby;
+	uint64aligned UlSteamIDLobby;
 	uint32 RgfChatPermissions;
 	bool BLocked;
 	uint32 EChatRoomEnterResponse;
 };
 struct LobbyDataUpdate_t {
-	uint64 UlSteamIDLobby;
-	uint64 UlSteamIDMember;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlSteamIDMember;
 	uint8 BSuccess;
 };
 struct LobbyChatUpdate_t {
-	uint64 UlSteamIDLobby;
-	uint64 UlSteamIDUserChanged;
-	uint64 UlSteamIDMakingChange;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlSteamIDUserChanged;
+	uint64aligned UlSteamIDMakingChange;
 	uint32 RgfChatMemberStateChange;
 };
 struct LobbyChatMsg_t {
-	uint64 UlSteamIDLobby;
-	uint64 UlSteamIDUser;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlSteamIDUser;
 	uint8 EChatEntryType;
 	uint32 IChatID;
 };
 struct LobbyGameCreated_t {
-	uint64 UlSteamIDLobby;
-	uint64 UlSteamIDGameServer;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlSteamIDGameServer;
 	uint32 UnIP;
 	uint16 UsPort;
 };
@@ -579,17 +583,17 @@ struct LobbyMatchList_t {
 	uint32 NLobbiesMatching;
 };
 struct LobbyKicked_t {
-	uint64 UlSteamIDLobby;
-	uint64 UlSteamIDAdmin;
+	uint64aligned UlSteamIDLobby;
+	uint64aligned UlSteamIDAdmin;
 	uint8 BKickedDueToDisconnect;
 };
 struct LobbyCreated_t {
 	EResult EResult;
-	uint64 UlSteamIDLobby;
+	uint64aligned UlSteamIDLobby;
 };
 struct PSNGameBootInviteResult_t {
 	bool BGameBootInviteExists;
-	CSteamID SteamIDLobby;
+	uint64aligned SteamIDLobby;
 };
 struct FavoritesListAccountsUpdated_t {
 	EResult EResult;
@@ -621,62 +625,62 @@ struct RemoteStorageAppSyncStatusCheck_t {
 };
 struct RemoteStorageFileShareResult_t {
 	EResult EResult;
-	UGCHandle_t HFile;
+	uint64aligned HFile;
 	char RgchFilename[260];
 };
 struct RemoteStoragePublishFileResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	bool BUserNeedsToAcceptWorkshopLegalAgreement;
 };
 struct RemoteStorageDeletePublishedFileResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct RemoteStorageEnumerateUserPublishedFilesResult_t {
 	EResult EResult;
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
-	PublishedFileId_t RgPublishedFileId[50];
+	uint64aligned RgPublishedFileId[50];
 };
 struct RemoteStorageSubscribePublishedFileResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct RemoteStorageEnumerateUserSubscribedFilesResult_t {
 	EResult EResult;
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
-	PublishedFileId_t RgPublishedFileId[50];
+	uint64aligned RgPublishedFileId[50];
 	uint32 RgRTimeSubscribed[50];
 };
 struct RemoteStorageUnsubscribePublishedFileResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct RemoteStorageUpdatePublishedFileResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	bool BUserNeedsToAcceptWorkshopLegalAgreement;
 };
 struct RemoteStorageDownloadUGCResult_t {
 	EResult EResult;
-	UGCHandle_t HFile;
+	uint64aligned HFile;
 	AppId_t NAppID;
 	int32 NSizeInBytes;
 	char PchFileName[260];
-	uint64 UlSteamIDOwner;
+	uint64aligned UlSteamIDOwner;
 };
 struct RemoteStorageGetPublishedFileDetailsResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NCreatorAppID;
 	AppId_t NConsumerAppID;
 	char RgchTitle[129];
 	char RgchDescription[8000];
-	UGCHandle_t HFile;
-	UGCHandle_t HPreviewFile;
-	uint64 UlSteamIDOwner;
+	uint64aligned HFile;
+	uint64aligned HPreviewFile;
+	uint64aligned UlSteamIDOwner;
 	uint32 RtimeCreated;
 	uint32 RtimeUpdated;
 	ERemoteStoragePublishedFileVisibility EVisibility;
@@ -694,49 +698,49 @@ struct RemoteStorageEnumerateWorkshopFilesResult_t {
 	EResult EResult;
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
-	PublishedFileId_t RgPublishedFileId[50];
+	uint64aligned RgPublishedFileId[50];
 	float RgScore[50];
 	AppId_t NAppId;
 	uint32 UnStartIndex;
 };
 struct RemoteStorageGetPublishedItemVoteDetailsResult_t {
 	EResult EResult;
-	PublishedFileId_t UnPublishedFileId;
+	uint64aligned UnPublishedFileId;
 	int32 NVotesFor;
 	int32 NVotesAgainst;
 	int32 NReports;
 	float FScore;
 };
 struct RemoteStoragePublishedFileSubscribed_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
 };
 struct RemoteStoragePublishedFileUnsubscribed_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
 };
 struct RemoteStoragePublishedFileDeleted_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
 };
 struct RemoteStorageUpdateUserPublishedItemVoteResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct RemoteStorageUserVoteDetails_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EWorkshopVote EVote;
 };
 struct RemoteStorageEnumerateUserSharedWorkshopFilesResult_t {
 	EResult EResult;
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
-	PublishedFileId_t RgPublishedFileId[50];
+	uint64aligned RgPublishedFileId[50];
 };
 struct RemoteStorageSetUserPublishedFileActionResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EWorkshopFileAction EAction;
 };
 struct RemoteStorageEnumeratePublishedFilesByUserActionResult_t {
@@ -744,7 +748,7 @@ struct RemoteStorageEnumeratePublishedFilesByUserActionResult_t {
 	EWorkshopFileAction EAction;
 	int32 NResultsReturned;
 	int32 NTotalResultCount;
-	PublishedFileId_t RgPublishedFileId[50];
+	uint64aligned RgPublishedFileId[50];
 	uint32 RgRTimeUpdated[50];
 };
 struct RemoteStoragePublishFileProgress_t {
@@ -752,54 +756,54 @@ struct RemoteStoragePublishFileProgress_t {
 	bool BPreview;
 };
 struct RemoteStoragePublishedFileUpdated_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
-	uint64 UlUnused;
+	uint64aligned UlUnused;
 };
 struct RemoteStorageFileWriteAsyncComplete_t {
 	EResult EResult;
 };
 struct RemoteStorageFileReadAsyncComplete_t {
-	SteamAPICall_t HFileReadAsync;
+	uint64aligned HFileReadAsync;
 	EResult EResult;
 	uint32 NOffset;
 	uint32 CubRead;
 };
 struct LeaderboardEntry_t {
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 	int32 NGlobalRank;
 	int32 NScore;
 	int32 CDetails;
-	UGCHandle_t HUGC;
+	uint64aligned HUGC;
 };
 struct UserStatsReceived_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	EResult EResult;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 };
 struct UserStatsStored_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	EResult EResult;
 };
 struct UserAchievementStored_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	bool BGroupAchievement;
 	char RgchAchievementName[128];
 	uint32 NCurProgress;
 	uint32 NMaxProgress;
 };
 struct LeaderboardFindResult_t {
-	SteamLeaderboard_t HSteamLeaderboard;
+	uint64aligned HSteamLeaderboard;
 	uint8 BLeaderboardFound;
 };
 struct LeaderboardScoresDownloaded_t {
-	SteamLeaderboard_t HSteamLeaderboard;
-	SteamLeaderboardEntries_t HSteamLeaderboardEntries;
+	uint64aligned HSteamLeaderboard;
+	uint64aligned HSteamLeaderboardEntries;
 	int CEntryCount;
 };
 struct LeaderboardScoreUploaded_t {
 	uint8 BSuccess;
-	SteamLeaderboard_t HSteamLeaderboard;
+	uint64aligned HSteamLeaderboard;
 	int32 NScore;
 	uint8 BScoreChanged;
 	int NGlobalRankNew;
@@ -810,29 +814,29 @@ struct NumberOfCurrentPlayers_t {
 	int32 CPlayers;
 };
 struct UserStatsUnloaded_t {
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 };
 struct UserAchievementIconFetched_t {
-	CGameID NGameID;
+	uint64aligned NGameID;
 	char RgchAchievementName[128];
 	bool BAchieved;
 	int NIconHandle;
 };
 struct GlobalAchievementPercentagesReady_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	EResult EResult;
 };
 struct LeaderboardUGCSet_t {
 	EResult EResult;
-	SteamLeaderboard_t HSteamLeaderboard;
+	uint64aligned HSteamLeaderboard;
 };
 struct PS3TrophiesInstalled_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	EResult EResult;
-	uint64 UlRequiredDiskSpace;
+	uint64aligned UlRequiredDiskSpace;
 };
 struct GlobalStatsReceived_t {
-	uint64 NGameID;
+	uint64aligned NGameID;
 	EResult EResult;
 };
 struct DlcInstalled_t {
@@ -850,7 +854,7 @@ struct AppProofOfPurchaseKeyResponse_t {
 };
 struct FileDetailsResult_t {
 	EResult EResult;
-	uint64 UlFileSize;
+	uint64aligned UlFileSize;
 	uint8 FileSHA[20];
 	uint32 UnFlags;
 };
@@ -865,16 +869,16 @@ struct P2PSessionState_t {
 	uint16 NRemotePort;
 };
 struct P2PSessionRequest_t {
-	CSteamID SteamIDRemote;
+	uint64aligned SteamIDRemote;
 };
 struct P2PSessionConnectFail_t {
-	CSteamID SteamIDRemote;
+	uint64aligned SteamIDRemote;
 	uint8 EP2PSessionError;
 };
 struct SocketStatusCallback_t {
 	SNetSocket_t HSocket;
 	SNetListenSocket_t HListenSocket;
-	CSteamID SteamIDRemote;
+	uint64aligned SteamIDRemote;
 	int ESNetSocketState;
 };
 struct ScreenshotReady_t {
@@ -904,18 +908,18 @@ struct MusicPlayerWantsPlayingRepeatStatus_t {
 };
 struct HTTPRequestCompleted_t {
 	HTTPRequestHandle HRequest;
-	uint64 UlContextValue;
+	uint64aligned UlContextValue;
 	bool BRequestSuccessful;
 	EHTTPStatusCode EStatusCode;
 	uint32 UnBodySize;
 };
 struct HTTPRequestHeadersReceived_t {
 	HTTPRequestHandle HRequest;
-	uint64 UlContextValue;
+	uint64aligned UlContextValue;
 };
 struct HTTPRequestDataReceived_t {
 	HTTPRequestHandle HRequest;
-	uint64 UlContextValue;
+	uint64aligned UlContextValue;
 	uint32 COffset;
 	uint32 CBytesReceived;
 };
@@ -942,14 +946,14 @@ struct ControllerMotionData_t {
 	float RotVelZ;
 };
 struct SteamUGCDetails_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EResult EResult;
 	EWorkshopFileType EFileType;
 	AppId_t NCreatorAppID;
 	AppId_t NConsumerAppID;
 	char RgchTitle[129];
 	char RgchDescription[8000];
-	uint64 UlSteamIDOwner;
+	uint64aligned UlSteamIDOwner;
 	uint32 RtimeCreated;
 	uint32 RtimeUpdated;
 	uint32 RtimeAddedToUserList;
@@ -958,8 +962,8 @@ struct SteamUGCDetails_t {
 	bool BAcceptedForUse;
 	bool BTagsTruncated;
 	char RgchTags[1025];
-	UGCHandle_t HFile;
-	UGCHandle_t HPreviewFile;
+	uint64aligned HFile;
+	uint64aligned HPreviewFile;
 	char PchFileName[260];
 	int32 NFileSize;
 	int32 NPreviewFileSize;
@@ -970,7 +974,7 @@ struct SteamUGCDetails_t {
 	uint32 UnNumChildren;
 };
 struct SteamUGCQueryCompleted_t {
-	UGCQueryHandle_t Handle;
+	uint64aligned Handle;
 	EResult EResult;
 	uint32 UnNumResultsReturned;
 	uint32 UnTotalMatchingResults;
@@ -982,31 +986,31 @@ struct SteamUGCRequestUGCDetailsResult_t {
 };
 struct CreateItemResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	bool BUserNeedsToAcceptWorkshopLegalAgreement;
 };
 struct SubmitItemUpdateResult_t {
 	EResult EResult;
 	bool BUserNeedsToAcceptWorkshopLegalAgreement;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct DownloadItemResult_t {
 	AppId_t UnAppID;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EResult EResult;
 };
 struct UserFavoriteItemsListChanged_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EResult EResult;
 	bool BWasAddRequest;
 };
 struct SetUserItemVoteResult_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EResult EResult;
 	bool BVoteUp;
 };
 struct GetUserItemVoteResult_t {
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	EResult EResult;
 	bool BVotedUp;
 	bool BVotedDown;
@@ -1020,34 +1024,34 @@ struct StopPlaytimeTrackingResult_t {
 };
 struct AddUGCDependencyResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
-	PublishedFileId_t NChildPublishedFileId;
+	uint64aligned NPublishedFileId;
+	uint64aligned NChildPublishedFileId;
 };
 struct RemoveUGCDependencyResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
-	PublishedFileId_t NChildPublishedFileId;
+	uint64aligned NPublishedFileId;
+	uint64aligned NChildPublishedFileId;
 };
 struct AddAppDependencyResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
 };
 struct RemoveAppDependencyResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t NAppID;
 };
 struct GetAppDependenciesResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 	AppId_t RgAppIDs[32];
 	uint32 NNumAppDependencies;
 	uint32 NTotalNumAppDependencies;
 };
 struct DeleteItemResult_t {
 	EResult EResult;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct SteamAppInstalled_t {
 	AppId_t NAppID;
@@ -1183,7 +1187,7 @@ struct HTML_BrowserRestarted_t {
 	HHTMLBrowser UnOldBrowserHandle;
 };
 struct SteamItemDetails_t {
-	SteamItemInstanceID_t ItemId;
+	uint64aligned ItemId;
 	SteamItemDef_t IDefinition;
 	uint16 UnQuantity;
 	uint16 UnFlags;
@@ -1197,14 +1201,14 @@ struct SteamInventoryFullUpdate_t {
 };
 struct SteamInventoryEligiblePromoItemDefIDs_t {
 	EResult Result;
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	int NumEligiblePromoItemDefs;
 	bool BCachedData;
 };
 struct SteamInventoryStartPurchaseResult_t {
 	EResult Result;
-	uint64 UlOrderID;
-	uint64 UlTransID;
+	uint64aligned UlOrderID;
+	uint64aligned UlTransID;
 };
 struct SteamInventoryRequestPricesResult_t {
 	EResult Result;
@@ -1223,20 +1227,20 @@ struct GetOPFSettingsResult_t {
 	AppId_t UnVideoAppID;
 };
 struct GSClientApprove_t {
-	CSteamID SteamID;
-	CSteamID OwnerSteamID;
+	uint64aligned SteamID;
+	uint64aligned OwnerSteamID;
 };
 struct GSClientDeny_t {
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	EDenyReason EDenyReason;
 	char RgchOptionalText[128];
 };
 struct GSClientKick_t {
-	CSteamID SteamID;
+	uint64aligned SteamID;
 	EDenyReason EDenyReason;
 };
 struct GSClientAchievementStatus_t {
-	uint64 SteamID;
+	uint64aligned SteamID;
 	char PchAchievement[128];
 	bool BUnlocked;
 };
@@ -1250,8 +1254,8 @@ struct GSGameplayStats_t {
 	uint32 UnTotalMinutesPlayed;
 };
 struct GSClientGroupStatus_t {
-	CSteamID SteamIDUser;
-	CSteamID SteamIDGroup;
+	uint64aligned SteamIDUser;
+	uint64aligned SteamIDGroup;
 	bool BMember;
 	bool BOfficer;
 };
@@ -1261,7 +1265,7 @@ struct GSReputation_t {
 	bool BBanned;
 	uint32 UnBannedIP;
 	uint16 UsBannedPort;
-	uint64 UlBannedGameID;
+	uint64aligned UlBannedGameID;
 	uint32 UnBanExpires;
 };
 struct AssociateWithClanResult_t {
@@ -1272,18 +1276,18 @@ struct ComputeNewPlayerCompatibilityResult_t {
 	int CPlayersThatDontLikeCandidate;
 	int CPlayersThatCandidateDoesntLike;
 	int CClanPlayersThatDontLikeCandidate;
-	CSteamID SteamIDCandidate;
+	uint64aligned SteamIDCandidate;
 };
 struct GSStatsReceived_t {
 	EResult EResult;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 };
 struct GSStatsStored_t {
 	EResult EResult;
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 };
 struct GSStatsUnloaded_t {
-	CSteamID SteamIDUser;
+	uint64aligned SteamIDUser;
 };
 struct NewLaunchQueryParameters_t {
 };
@@ -1316,7 +1320,7 @@ struct ScreenshotRequested_t {
 };
 struct ItemInstalled_t {
 	AppId_t UnAppID;
-	PublishedFileId_t NPublishedFileId;
+	uint64aligned NPublishedFileId;
 };
 struct SteamServersConnected_t {
 };
