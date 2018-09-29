@@ -18,8 +18,8 @@ import (
 )
 
 // AppID returns the App ID of the current process.
-func AppID() uint32 {
-	return internal.SteamAPI_ISteamUtils_GetAppID()
+func AppID() steamworks.AppID {
+	return steamworks.AppID(internal.SteamAPI_ISteamUtils_GetAppID())
 }
 
 // CurrentBatteryPower returns the current battery power percentage from
@@ -75,7 +75,5 @@ func ServerRealTime() time.Time {
 // OnSteamShutdown registers a function to be called when Steam wants to shut
 // down.
 func OnSteamShutdown(f func()) steamworks.Registration {
-	return internal.RegisterCallback_SteamShutdown(func(*internal.SteamShutdown, bool) {
-		f()
-	}, 0)
+	return internal.RegisterCallback_SteamShutdown(func(*internal.SteamShutdown, bool) { f() }, 0)
 }

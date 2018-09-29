@@ -10,7 +10,8 @@ import (
 
 var packetLock sync.Mutex
 
-// ReadPacket checks if a P2P packet is available and returns the packet if there is one.
+// ReadPacket checks if a P2P packet is available and returns the packet if
+// there is one.
 //
 // This should be called in a loop for each channel that you use.
 //
@@ -18,8 +19,9 @@ var packetLock sync.Mutex
 func ReadPacket(channel int32) ([]byte, steamworks.SteamID) {
 	defer internal.Cleanup()()
 
-	// Although the call is non-blocking, it would be bad if another thread called this function at the same time.
-	// The lock is used to ensure that only one non-blocking call is active at a time.
+	// Although the call is non-blocking, we need to call two functions, and
+	// we don't want the state of the connection to be changed by another
+	// caller to ReadPacket in-between.
 	packetLock.Lock()
 	defer packetLock.Unlock()
 

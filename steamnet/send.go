@@ -72,17 +72,20 @@ func (err sendError) Timeout() bool {
 
 // SendPacket sends a P2P packet to the specified user.
 //
-// This is a session-less API which automatically establishes NAT-traversing or Steam relay server connections.
+// This is a session-less API which automatically establishes NAT-traversing or
+// Steam relay server connections.
 //
 // The first packet send may be delayed as the NAT-traversal code runs.
 //
 // See Reliability for descriptions of the different ways of sending packets.
 //
-// The type of data you send is arbitrary, you can use an off the shelf system like Protocol Buffers or
-// Cap'n Proto to encode your packets in an efficient way, or you can create your own messaging system.
+// The type of data you send is arbitrary, you can use an off the shelf system
+// like Protocol Buffers or Cap'n Proto to encode your packets in an efficient
+// way, or you can create your own messaging system.
 //
-// Note that a nil return value does not mean the packet was successfully received. If the packet is not received
-// after a timeout of 20 seconds, an error will be sent to the function registered with RegisterErrorCallback.
+// Note that a nil return value does not mean the packet was successfully
+// received. If the packet is not received after a timeout of 20 seconds, an
+// error will be sent to the function registered with RegisterErrorCallback.
 func SendPacket(user steamworks.SteamID, data []byte, sendType Reliability, channel int32) error {
 	defer internal.Cleanup()()
 

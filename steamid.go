@@ -11,13 +11,13 @@ const (
 	SteamIDNil SteamID = 0
 
 	// SteamIDOutofDateGS is a SteamID that comes from a user game connection to an out-of-date game server that hasn't implemented the protocol to provide its SteamID.
-	SteamIDOutofDateGS = SteamID(0) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
+	SteamIDOutofDateGS SteamID = SteamID(0) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
 	// SteamIDLanModeGS is a SteamID that comes from a user game connection to an sv_lan game server.
-	SteamIDLanModeGS = SteamID(0) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniversePublic)<<56
+	SteamIDLanModeGS SteamID = SteamID(0) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniversePublic)<<56
 	// SteamIDNotInitYetGS is a SteamID that can come from a user game connection to a game server that has just booted but hasn't yet even initialized its Steam3 component and started logging on.
-	SteamIDNotInitYetGS = SteamID(1) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
+	SteamIDNotInitYetGS SteamID = SteamID(1) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
 	// SteamIDNonSteamGS is a SteamID that can come from a user game connection to a GS that isn't using the steam authentication system but still wants to support the "Join Game" option in the friends list.
-	SteamIDNonSteamGS = SteamID(2) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
+	SteamIDNonSteamGS SteamID = SteamID(2) | SteamID(AccountTypeInvalid)<<52 | SteamID(UniverseInvalid)<<56
 )
 
 // AccountType is a Steam account type.
@@ -25,17 +25,17 @@ type AccountType = internal.EAccountType
 
 // Constants for AccountType
 const (
-	AccountTypeInvalid        = internal.EAccountType_Invalid
-	AccountTypeIndividual     = internal.EAccountType_Individual
-	AccountTypeMultiseat      = internal.EAccountType_Multiseat
-	AccountTypeGameServer     = internal.EAccountType_GameServer
-	AccountTypeAnonGameServer = internal.EAccountType_AnonGameServer
-	AccountTypePending        = internal.EAccountType_Pending
-	AccountTypeContentServer  = internal.EAccountType_ContentServer
-	AccountTypeClan           = internal.EAccountType_Clan
-	AccountTypeChat           = internal.EAccountType_Chat
-	AccountTypeConsoleUser    = internal.EAccountType_ConsoleUser
-	AccountTypeAnonUser       = internal.EAccountType_AnonUser
+	AccountTypeInvalid        AccountType = internal.EAccountType_Invalid
+	AccountTypeIndividual     AccountType = internal.EAccountType_Individual
+	AccountTypeMultiseat      AccountType = internal.EAccountType_Multiseat
+	AccountTypeGameServer     AccountType = internal.EAccountType_GameServer
+	AccountTypeAnonGameServer AccountType = internal.EAccountType_AnonGameServer
+	AccountTypePending        AccountType = internal.EAccountType_Pending
+	AccountTypeContentServer  AccountType = internal.EAccountType_ContentServer
+	AccountTypeClan           AccountType = internal.EAccountType_Clan
+	AccountTypeChat           AccountType = internal.EAccountType_Chat
+	AccountTypeConsoleUser    AccountType = internal.EAccountType_ConsoleUser
+	AccountTypeAnonUser       AccountType = internal.EAccountType_AnonUser
 )
 
 // AccountUniverse is a Steam universe.
@@ -43,11 +43,11 @@ type AccountUniverse = internal.EUniverse
 
 // Constants for AccountUniverse
 const (
-	UniverseInvalid  = internal.EUniverse_Invalid
-	UniversePublic   = internal.EUniverse_Public
-	UniverseBeta     = internal.EUniverse_Beta
-	UniverseInternal = internal.EUniverse_Internal
-	UniverseDev      = internal.EUniverse_Dev
+	UniverseInvalid  AccountUniverse = internal.EUniverse_Invalid
+	UniversePublic   AccountUniverse = internal.EUniverse_Public
+	UniverseBeta     AccountUniverse = internal.EUniverse_Beta
+	UniverseInternal AccountUniverse = internal.EUniverse_Internal
+	UniverseDev      AccountUniverse = internal.EUniverse_Dev
 )
 
 // AccountInstance represents an instance of a Steam account.
@@ -112,7 +112,8 @@ func (id SteamID) Universe() AccountUniverse {
 	return AccountUniverse((id >> 56) & 0xFF)
 }
 
-// IsValid returns true if the SteamID has a valid format. It does not check whether the target of the ID exists.
+// IsValid returns true if the SteamID has a valid format. It does not check
+// whether the target of the ID exists.
 func (id SteamID) IsValid() bool {
 	return internal.SteamID_IsValid(internal.SteamID(id))
 }

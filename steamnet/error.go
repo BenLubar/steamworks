@@ -5,9 +5,11 @@ import (
 	"github.com/BenLubar/steamworks/internal"
 )
 
-// RegisterErrorCallback registers a function to be called when packets can't get through to the specified user.
+// RegisterErrorCallback registers a function to be called when packets can't
+// get through to the specified user.
 //
-// All queued packets unsent at this point will be dropped, further attempts to send will retry making the connection (but will be dropped if we fail again).
+// All queued packets unsent at this point will be dropped, further attempts to
+// send will retry making the connection (but will be dropped if we fail again).
 func RegisterErrorCallback(f func(steamworks.SteamID, error)) steamworks.Registration {
 	return internal.RegisterCallback_P2PSessionConnectFail(func(data *internal.P2PSessionConnectFail, _ bool) {
 		f(steamworks.SteamID(data.SteamIDRemote.Get()), toError(internal.EP2PSessionError(data.EP2PSessionError)))
@@ -18,13 +20,17 @@ func RegisterErrorCallback(f func(steamworks.SteamID, error)) steamworks.Registr
 type Error internal.EP2PSessionError
 
 var (
-	// ErrNotRunningApp is returned if the target user is not running the same game.
+	// ErrNotRunningApp is returned if the target user is not running the same
+	// game.
 	ErrNotRunningApp error = Error(internal.EP2PSessionError_NotRunningApp)
-	// ErrNoRightsToApp is returned if the local user doesn't own the app that is running.
+	// ErrNoRightsToApp is returned if the local user doesn't own the app that
+	// is running.
 	ErrNoRightsToApp error = Error(internal.EP2PSessionError_NoRightsToApp)
-	// ErrDestinationNotLoggedIn is returned if the target user isn't connected to Steam.
+	// ErrDestinationNotLoggedIn is returned if the target user isn't connected
+	// to Steam.
 	ErrDestinationNotLoggedIn error = Error(internal.EP2PSessionError_DestinationNotLoggedIn)
-	// ErrTimeout is returned if the connection timed out because the target user didn't respond.
+	// ErrTimeout is returned if the connection timed out because the target
+	// user didn't respond.
 	ErrTimeout error = Error(internal.EP2PSessionError_Timeout)
 )
 
@@ -41,7 +47,8 @@ func (err Error) Timeout() bool {
 	return err == ErrTimeout
 }
 
-// Temporary returns true iff this error might go away after a retry with no other local actions.
+// Temporary returns true iff this error might go away after a retry with no
+// other local actions.
 func (err Error) Temporary() bool {
 	return err == ErrNotRunningApp || err == ErrDestinationNotLoggedIn || err == ErrTimeout
 }

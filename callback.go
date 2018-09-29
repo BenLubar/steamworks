@@ -61,10 +61,10 @@ var callbackShutdown chan<- chan<- struct{}
 //
 //        mainGameLoop()
 //    }
-func RestartAppIfNecessary(ownAppID uint32) bool {
+func RestartAppIfNecessary(ownAppID AppID) bool {
 	defer internal.Cleanup()()
 
-	return internal.SteamAPI_RestartAppIfNecessary(ownAppID)
+	return internal.SteamAPI_RestartAppIfNecessary(uint32(ownAppID))
 }
 
 // Errors that can be returned by InitClient or InitServer.
@@ -122,11 +122,16 @@ func InitClient(startCallbackGoroutine bool) error {
 // ServerMode is the authentication mode for a Steam game server.
 type ServerMode = internal.EServerMode
 
-// ServerMode constants.
 const (
-	NoAuthentication        = internal.EServerMode_NoAuthentication
-	Authentication          = internal.EServerMode_Authentication
-	AuthenticationAndSecure = internal.EServerMode_AuthenticationAndSecure
+	// NoAuthentication doesn't authenticate user logins and doesn't list the
+	// server on the master server list.
+	NoAuthentication ServerMode = internal.EServerMode_NoAuthentication
+	// Authentication authenticates users and lists the server on the master
+	// server list but doesn't run VAC on clients that connect.
+	Authentication ServerMode = internal.EServerMode_Authentication
+	// AuthenticationAndSecure authenticates users, lists the server on the
+	// master server list, and VAC protects clients.
+	AuthenticationAndSecure ServerMode = internal.EServerMode_AuthenticationAndSecure
 )
 
 // UseGameSocketShare is a placeholder value for queryPort that means the game
@@ -173,7 +178,8 @@ func InitServer(ip net.IP, steamPort, gamePort, queryPort uint16, serverMode Ser
 //
 // You should call this during process shutdown if possible.
 //
-// This will not unhook the Steam Overlay from your game as there's no guarantee that your rendering API is done using it.
+// This will not unhook the Steam Overlay from your game as there's no
+// guarantee that your rendering API is done using it.
 func Shutdown() {
 	stopCallbackGoroutine()
 

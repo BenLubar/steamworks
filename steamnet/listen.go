@@ -13,9 +13,11 @@ import (
 
 // Listen registers a function to handle connection requests.
 //
-// The function will be called from the callback thread, and will cause the connection to be accepted if it returns true.
+// The function will be called from the callback thread, and will cause the
+// connection to be accepted if it returns true.
 //
-// Multiple listeners may be registered simultaneously, and connections will be accepted if any listener returns true.
+// Multiple listeners may be registered simultaneously, and connections will be
+// accepted if any listener returns true.
 func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
 	return internal.RegisterCallback_P2PSessionRequest(func(data *internal.P2PSessionRequest, _ bool) {
 		id := internal.SteamID(data.SteamIDRemote.Get())
@@ -25,9 +27,13 @@ func Listen(accept func(steamworks.SteamID) bool) steamworks.Registration {
 	}, 0)
 }
 
-// SetAllowPacketRelay allows or disallows P2P connections to fall back to being relayed through the Steam servers if a direct connection or NAT-traversal cannot be established.
+// SetAllowPacketRelay allows or disallows P2P connections to fall back to
+// being relayed through the Steam servers if a direct connection or
+// NAT-traversal cannot be established.
 //
-// This only applies to connections created after setting this value, or to existing connections that need to automatically reconnect after this value is set.
+// This only applies to connections created after setting this value, or to
+// existing connections that need to automatically reconnect after this value
+// is set.
 //
 // P2P packet relay is allowed by default.
 func SetAllowPacketRelay(allow bool) {

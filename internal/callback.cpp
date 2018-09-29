@@ -49,7 +49,7 @@ public:
 	}
 	virtual void Run(void *data, bool ioFailure, SteamAPICall_t hSteamAPICall)
 	{
-		if (api_call_id != k_uAppIdInvalid && hSteamAPICall != api_call_id)
+		if (api_call_id != k_uAPICallInvalid && hSteamAPICall != api_call_id)
 		{
 			return;
 		}

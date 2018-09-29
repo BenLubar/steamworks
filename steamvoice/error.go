@@ -8,6 +8,8 @@ import (
 )
 
 // Errors returned by this package.
+//
+// Additional errors include io.EOF and io.ErrShortBuffer.
 var (
 	ErrNotInitialized = errors.New("steamworks/steamvoice: interface has not been initialized")
 	ErrDataCorrupted  = errors.New("steamworks/steamvoice: voice data has been corrupted")
