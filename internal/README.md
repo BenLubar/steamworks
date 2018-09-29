@@ -4,4 +4,4 @@ The `.a` and `.def` files in the `lib/windows` subfolder are generated with `rei
 
 The current version in this package is v1.42.
 
-To (re)generate the `*_string.go` and `api.gen.*` files, run `go generate`.
+To (re)generate the `*.gen.*` files, run `go generate`.

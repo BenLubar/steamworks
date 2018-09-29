@@ -1,3 +1,7 @@
+// +build windows linux darwin
+// +build 386 amd64
+
+// Package internal wraps the Steamworks API.
 package internal
 
 /*
