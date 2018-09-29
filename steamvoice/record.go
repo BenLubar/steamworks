@@ -56,17 +56,27 @@ func SetInGameSpeaking(speaking bool) {
 // reasons. However, if you would like to allocate precisely the right amount
 // of space for a buffer before each call you may use Reader.Available() to find
 // out how much data is available to be read.
-var Reader voiceReader
+var Reader VoiceReader
 
-type voiceReader struct{}
+// VoiceReader is the type of Reader. It contains no state and should not be
+// used directly. Instead, use the steamvoice.Reader variable.
+type VoiceReader struct{}
 
-func (voiceReader) Read(p []byte) (n int, err error) {
+// Read implements io.Reader. Reading is non-blocking, and if no data is
+// available, (0, nil) will be returned.
+func (VoiceReader) Read(p []byte) (int, error) {
+	defer internal.Cleanup()()
+
 	var bytesWritten uint32
 	result := internal.SteamAPI_ISteamUser_GetVoice(true, unsafe.Pointer(&p[0]), uint32(len(p)), &bytesWritten, false, nil, 0, nil, 0)
 	return int(bytesWritten), toError(result)
 }
 
-func (voiceReader) Available() (int, error) {
+// Available returns the number of bytes of compressed voice data currently
+// available from Read.
+func (VoiceReader) Available() (int, error) {
+	defer internal.Cleanup()()
+
 	var bytesAvailable uint32
 	result := internal.SteamAPI_ISteamUser_GetAvailableVoice(&bytesAvailable, nil, 0)
 	return int(bytesAvailable), toError(result)
