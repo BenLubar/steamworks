@@ -4,9 +4,9 @@ package steamauth
 
 import "strconv"
 
-const _SessionStatus_name = "UnknownOKUserNotConnectedtoSteamNoLicenseOrExpiredVACBannedLoggedInElsewhereVACCheckTimedOutCanceledInvalidAlreadyUsedInvalidPublisherIssuedBan"
+const _SessionStatus_name = "ClosedUnknownOKUserNotConnectedToSteamNoLicenseOrExpiredVACBannedLoggedInElsewhereVACCheckTimedOutCanceledInvalidAlreadyUsedInvalidPublisherIssuedBan"
 
-var _SessionStatus_index = [...]uint8{0, 7, 9, 32, 50, 59, 76, 92, 100, 118, 125, 143}
+var _SessionStatus_index = [...]uint8{0, 6, 13, 15, 38, 56, 65, 82, 98, 106, 124, 131, 149}
 
 func (i SessionStatus) String() string {
 	if i < 0 || i >= SessionStatus(len(_SessionStatus_index)-1) {

@@ -1,9 +1,3 @@
-// Package steamauth wraps Steam's user authentication API.
-//
-// This package is available on both clients and servers.
-//
-// See the Steam User Authentication documentation for more details.
-// <https://partner.steamgames.com/doc/features/auth>
 package steamauth
 
 import (
@@ -12,6 +6,11 @@ import (
 	"github.com/BenLubar/steamworks/internal"
 )
 
+// CreateTicket generates a sequence of bytes that verifies your identity and
+// ownership of a game to another Steam user or server.
+//
+// The ticket can only be used once, and cancel should be called when the ticket
+// is no longer in use - that is, when the session ends.
 func CreateTicket() (ticket []byte, cancel func()) {
 	var handle internal.HAuthTicket
 	var buffer [1024]byte
