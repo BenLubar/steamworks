@@ -3897,6 +3897,16 @@ func RegisterCallback_GameServerChangeRequested(f func(*GameServerChangeRequeste
 	}, unsafe.Sizeof(GameServerChangeRequested{}), SteamFriendsCallbacks+32, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_GameLobbyJoinRequested(f func(*GameLobbyJoinRequested, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*GameLobbyJoinRequested)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(GameLobbyJoinRequested{}), SteamFriendsCallbacks+33, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_AvatarImageLoaded(f func(*AvatarImageLoaded, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -4027,6 +4037,16 @@ func RegisterCallback_FriendsEnumerateFollowingList(f func(*FriendsEnumerateFoll
 	}, unsafe.Sizeof(FriendsEnumerateFollowingList{}), SteamFriendsCallbacks+46, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_SetPersonaNameResponse(f func(*SetPersonaNameResponse, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*SetPersonaNameResponse)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(SetPersonaNameResponse{}), SteamFriendsCallbacks+47, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_GCMessageAvailable(f func(*GCMessageAvailable, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -4115,6 +4135,16 @@ func RegisterCallback_GSClientGroupStatus(f func(*GSClientGroupStatus, bool), ap
 			cb.Unregister()
 		}
 	}, unsafe.Sizeof(GSClientGroupStatus{}), SteamGameServerCallbacks+8, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_GSReputation(f func(*GSReputation, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*GSReputation)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(GSReputation{}), SteamGameServerCallbacks+9, apiCall, IsGameServer)
 	return cb
 }
 func RegisterCallback_AssociateWithClanResult(f func(*AssociateWithClanResult, bool), apiCall SteamAPICall) registeredCallback {
@@ -4387,6 +4417,36 @@ func RegisterCallback_HTML_BrowserRestarted(f func(*HTML_BrowserRestarted, bool)
 	}, unsafe.Sizeof(HTML_BrowserRestarted{}), SteamHTMLSurfaceCallbacks+27, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_HTTPRequestCompleted(f func(*HTTPRequestCompleted, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*HTTPRequestCompleted)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(HTTPRequestCompleted{}), ClientHTTPCallbacks+1, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_HTTPRequestHeadersReceived(f func(*HTTPRequestHeadersReceived, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*HTTPRequestHeadersReceived)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(HTTPRequestHeadersReceived{}), ClientHTTPCallbacks+2, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_HTTPRequestDataReceived(f func(*HTTPRequestDataReceived, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*HTTPRequestDataReceived)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(HTTPRequestDataReceived{}), ClientHTTPCallbacks+3, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_SteamInventoryResultReady(f func(*SteamInventoryResultReady, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -4457,6 +4517,66 @@ func RegisterCallback_FavoritesListChanged(f func(*FavoritesListChanged, bool), 
 	}, unsafe.Sizeof(FavoritesListChanged{}), SteamMatchmakingCallbacks+2, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_LobbyInvite(f func(*LobbyInvite, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyInvite)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyInvite{}), SteamMatchmakingCallbacks+3, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyEnter(f func(*LobbyEnter, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyEnter)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyEnter{}), SteamMatchmakingCallbacks+4, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyDataUpdate(f func(*LobbyDataUpdate, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyDataUpdate)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyDataUpdate{}), SteamMatchmakingCallbacks+5, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyChatUpdate(f func(*LobbyChatUpdate, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyChatUpdate)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyChatUpdate{}), SteamMatchmakingCallbacks+6, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyChatMsg(f func(*LobbyChatMsg, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyChatMsg)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyChatMsg{}), SteamMatchmakingCallbacks+7, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyGameCreated(f func(*LobbyGameCreated, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyGameCreated)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyGameCreated{}), SteamMatchmakingCallbacks+9, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_LobbyMatchList(f func(*LobbyMatchList, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -4475,6 +4595,26 @@ func RegisterCallback_LobbyKicked(f func(*LobbyKicked, bool), apiCall SteamAPICa
 			cb.Unregister()
 		}
 	}, unsafe.Sizeof(LobbyKicked{}), SteamMatchmakingCallbacks+12, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_LobbyCreated(f func(*LobbyCreated, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*LobbyCreated)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(LobbyCreated{}), SteamMatchmakingCallbacks+13, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_PSNGameBootInviteResult(f func(*PSNGameBootInviteResult, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*PSNGameBootInviteResult)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(PSNGameBootInviteResult{}), SteamMatchmakingCallbacks+15, apiCall, IsGameServer)
 	return cb
 }
 func RegisterCallback_FavoritesListAccountsUpdated(f func(*FavoritesListAccountsUpdated, bool), apiCall SteamAPICall) registeredCallback {
@@ -5177,6 +5317,16 @@ func RegisterCallback_SteamServersDisconnected(f func(*SteamServersDisconnected,
 	}, unsafe.Sizeof(SteamServersDisconnected{}), SteamUserCallbacks+3, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_ClientGameServerDeny(f func(*ClientGameServerDeny, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*ClientGameServerDeny)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(ClientGameServerDeny{}), SteamUserCallbacks+13, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_IPCFailure(f func(*IPCFailure, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -5215,6 +5365,16 @@ func RegisterCallback_MicroTxnAuthorizationResponse(f func(*MicroTxnAuthorizatio
 			cb.Unregister()
 		}
 	}, unsafe.Sizeof(MicroTxnAuthorizationResponse{}), SteamUserCallbacks+52, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_EncryptedAppTicketResponse(f func(*EncryptedAppTicketResponse, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*EncryptedAppTicketResponse)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(EncryptedAppTicketResponse{}), SteamUserCallbacks+54, apiCall, IsGameServer)
 	return cb
 }
 func RegisterCallback_GetAuthSessionTicketResponse(f func(*GetAuthSessionTicketResponse, bool), apiCall SteamAPICall) registeredCallback {
@@ -5267,6 +5427,16 @@ func RegisterCallback_UserStatsStored(f func(*UserStatsStored, bool), apiCall St
 	}, unsafe.Sizeof(UserStatsStored{}), SteamUserStatsCallbacks+2, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_UserAchievementStored(f func(*UserAchievementStored, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*UserAchievementStored)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(UserAchievementStored{}), SteamUserStatsCallbacks+3, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_LeaderboardFindResult(f func(*LeaderboardFindResult, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -5317,6 +5487,26 @@ func RegisterCallback_UserStatsUnloaded(f func(*UserStatsUnloaded, bool), apiCal
 	}, unsafe.Sizeof(UserStatsUnloaded{}), SteamUserStatsCallbacks+8, apiCall, IsGameServer)
 	return cb
 }
+func RegisterCallback_UserAchievementIconFetched(f func(*UserAchievementIconFetched, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*UserAchievementIconFetched)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(UserAchievementIconFetched{}), SteamUserStatsCallbacks+9, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_GlobalAchievementPercentagesReady(f func(*GlobalAchievementPercentagesReady, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*GlobalAchievementPercentagesReady)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(GlobalAchievementPercentagesReady{}), SteamUserStatsCallbacks+10, apiCall, IsGameServer)
+	return cb
+}
 func RegisterCallback_LeaderboardUGCSet(f func(*LeaderboardUGCSet, bool), apiCall SteamAPICall) registeredCallback {
 	var cb registeredCallback
 	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
@@ -5325,6 +5515,16 @@ func RegisterCallback_LeaderboardUGCSet(f func(*LeaderboardUGCSet, bool), apiCal
 			cb.Unregister()
 		}
 	}, unsafe.Sizeof(LeaderboardUGCSet{}), SteamUserStatsCallbacks+11, apiCall, IsGameServer)
+	return cb
+}
+func RegisterCallback_PS3TrophiesInstalled(f func(*PS3TrophiesInstalled, bool), apiCall SteamAPICall) registeredCallback {
+	var cb registeredCallback
+	cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) {
+		f((*PS3TrophiesInstalled)(cdata), ioFailure)
+		if apiCall != 0 {
+			cb.Unregister()
+		}
+	}, unsafe.Sizeof(PS3TrophiesInstalled{}), SteamUserStatsCallbacks+12, apiCall, IsGameServer)
 	return cb
 }
 func RegisterCallback_GlobalStatsReceived(f func(*GlobalStatsReceived, bool), apiCall SteamAPICall) registeredCallback {

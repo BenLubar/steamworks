@@ -5,7 +5,6 @@ package steamauth
 
 import (
 	"sync"
-	"unsafe"
 
 	"github.com/BenLubar/steamworks"
 	"github.com/BenLubar/steamworks/internal"
@@ -78,7 +77,7 @@ func doInit() {
 		sessionLock.Lock()
 		defer sessionLock.Unlock()
 
-		sess := (*Session)(unsafe.Pointer(sessions[claimedID])) // nolint: vet
+		sess := sessions[claimedID]
 		if sess == nil {
 			return
 		}

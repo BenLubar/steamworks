@@ -64,3 +64,8 @@ func (id GameID) AppID() AppID {
 func (id GameID) Type() GameIDType {
 	return GameIDType((id >> 24) & 0xff)
 }
+
+// GetAppID returns the App ID of the current process.
+func GetAppID() AppID {
+	return AppID(internal.SteamAPI_ISteamUtils_GetAppID())
+}

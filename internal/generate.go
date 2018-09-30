@@ -710,7 +710,7 @@ type CallbackField struct {
 }
 
 func findCallbackDefs() []*CallbackDef {
-	re1 := regexp.MustCompile(`(?m)^((?://.*\n)*)struct ([A-Za-z0-9_]+_t)\n\{ ?\n\tenum \{ k_iCallback = k_i([A-Za-z]+) \+ ([0-9]+) \};\n((?:\t.*\n)*)\};$`)
+	re1 := regexp.MustCompile(`(?m)^((?://.*\n)*)struct ([A-Za-z0-9_]+_t)\n\{ ?\n\tenum \{ k_iCallback = k_i([A-Za-z]+) \+ ([0-9]+) \};\n((?:\t.*\n|\n)*)\};$`)
 	re2 := regexp.MustCompile(`(?m)^((?://.*\n)*)DEFINE_CALLBACK\( ?([A-Za-z0-9_]+_t), k_i([A-Za-z]+) \+ ([0-9]+) ?\);?\n((?:[ \t]*CALLBACK_MEMBER\(.*\)[ \t]*(?://.*)?\n)*)END_DEFINE_CALLBACK_[0-9]+\(\)$`)
 
 	var defs []*CallbackDef
@@ -753,7 +753,9 @@ func parseCallbackFields(fields string, parse func(string) *CallbackField) []*Ca
 				fields = fields[strings.IndexByte(fields, ';'):]
 				i = strings.IndexByte(fields, '\n')
 			} else if strings.HasPrefix(line, "//") {
-				parsed[len(parsed)-1].Comment += "\n" + line
+				if len(parsed) != 0 {
+					parsed[len(parsed)-1].Comment += "\n" + line
+				}
 			} else {
 				parsed = append(parsed, parse(line))
 			}

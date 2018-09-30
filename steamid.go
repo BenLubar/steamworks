@@ -117,3 +117,13 @@ func (id SteamID) Universe() AccountUniverse {
 func (id SteamID) IsValid() bool {
 	return internal.SteamID_IsValid(internal.SteamID(id))
 }
+
+// GetSteamID returns the Steam ID associated with the current user or game
+// server.
+func GetSteamID() SteamID {
+	if internal.IsGameServer {
+		return SteamID(internal.SteamAPI_ISteamGameServer_GetSteamID())
+	}
+
+	return SteamID(internal.SteamAPI_ISteamUser_GetSteamID())
+}

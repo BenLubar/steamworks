@@ -17,10 +17,9 @@ import (
 	"github.com/BenLubar/steamworks/internal"
 )
 
-// The sessions map holds "weak" pointers which are kept safe by the finalizer
-// on Session holding at least one reference to any session still in the map.
+// All session mutations are protected by this global lock.
 var sessionLock sync.Mutex
-var sessions = make(map[steamworks.SteamID]uintptr)
+var sessions = make(map[steamworks.SteamID]*sessionData)
 
 // Session represents a Steam authentication session. All methods on Session
 // are safe to call concurrently.
@@ -29,9 +28,18 @@ var sessions = make(map[steamworks.SteamID]uintptr)
 // will result in a message being written to the standard error stream.
 type Session struct {
 	claimedID steamworks.SteamID
-	ownerID   steamworks.SteamID
-	status    SessionStatus
-	change    chan SessionStatus
+	data      *sessionData
+	closed    bool
+}
+
+// sessionData is separate from Session to allow Session to be garbage
+// collected. The reference counter is used to know when a session has
+// been leaked.
+type sessionData struct {
+	ownerID steamworks.SteamID
+	status  SessionStatus
+	change  chan SessionStatus
+	refs    uintptr
 }
 
 // ClaimedID returns the SteamID of the remote user for this session.
@@ -50,7 +58,7 @@ func (s *Session) OwnerID() steamworks.SteamID {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
 
-	return s.ownerID
+	return s.data.ownerID
 }
 
 // Status returns the current status of this session.
@@ -61,7 +69,7 @@ func (s *Session) Status() SessionStatus {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
 
-	return s.status
+	return s.data.status
 }
 
 // Change returns a channel which receives status changes. The channel is closed
@@ -69,7 +77,23 @@ func (s *Session) Status() SessionStatus {
 // StatusClosed.
 func (s *Session) Change() <-chan SessionStatus {
 	// immutable; no need to lock
-	return s.change
+	return s.data.change
+}
+
+// OwnsDLC returns true if the user owns the specified DLC, or false if the user
+// does not own the DLC or if the session is not authenticated.
+func (s *Session) OwnsDLC(dlc steamworks.AppID) bool {
+	defer internal.Cleanup()()
+
+	var result internal.EUserHasLicenseForAppResult
+
+	if internal.IsGameServer {
+		result = internal.SteamAPI_ISteamGameServer_UserHasLicenseForApp(internal.SteamID(s.claimedID), internal.AppId(dlc))
+	} else {
+		result = internal.SteamAPI_ISteamUser_UserHasLicenseForApp(internal.SteamID(s.claimedID), internal.AppId(dlc))
+	}
+
+	return result == internal.EUserHasLicenseForAppResult_EUserHasLicenseResultHasLicense
 }
 
 // Errors that can be returned from BeginSession.
@@ -115,35 +139,45 @@ func BeginSession(ticket []byte, claimedID steamworks.SteamID) (*Session, error)
 		result = internal.SteamAPI_ISteamGameServer_BeginAuthSession(unsafe.Pointer(&ticket[0]), int32(len(ticket)), internal.SteamID(claimedID))
 	}
 
+	var sdata *sessionData
+	var err error
+
 	switch result {
 	case internal.EBeginAuthSessionResult_OK:
-		break
+		sdata = &sessionData{
+			status: StatusUnknown,
+			change: make(chan SessionStatus, 1),
+		}
+		sessions[claimedID] = sdata
 	case internal.EBeginAuthSessionResult_InvalidTicket:
-		return nil, ErrInvalidTicket
+		err = ErrInvalidTicket
 	case internal.EBeginAuthSessionResult_DuplicateRequest:
-		sess := (*Session)(unsafe.Pointer(sessions[claimedID])) // nolint: vet
-		return sess, ErrDuplicateRequest
+		sdata = sessions[claimedID]
+		if sdata != nil {
+			sdata.refs++
+		}
+		err = ErrDuplicateRequest
 	case internal.EBeginAuthSessionResult_InvalidVersion:
-		return nil, ErrInvalidVersion
+		err = ErrInvalidVersion
 	case internal.EBeginAuthSessionResult_GameMismatch:
-		return nil, ErrGameMismatch
+		err = ErrGameMismatch
 	case internal.EBeginAuthSessionResult_ExpiredTicket:
-		return nil, ErrExpired
+		err = ErrExpired
 	default:
-		return nil, ErrUnknown
+		err = ErrUnknown
 	}
 
-	sess := &Session{
-		claimedID: claimedID,
-		status:    StatusUnknown,
-		change:    make(chan SessionStatus, 1),
+	var sess *Session
+	if sdata != nil {
+		sess = &Session{
+			claimedID: claimedID,
+			data:      sdata,
+		}
+
+		runtime.SetFinalizer(sess, (*Session).complain)
 	}
 
-	runtime.SetFinalizer(sess, (*Session).complain)
-
-	sessions[claimedID] = uintptr(unsafe.Pointer(sess))
-
-	return sess, nil
+	return sess, err
 }
 
 // ErrSessionAlreadyClosed is returned by Session.Close if the session is
@@ -158,11 +192,16 @@ func (s *Session) Close() error {
 	sessionLock.Lock()
 	defer sessionLock.Unlock()
 
-	if uintptr(unsafe.Pointer(s)) != sessions[s.claimedID] {
+	if s.data != sessions[s.claimedID] || s.closed {
 		// This session was already closed.
 		return ErrSessionAlreadyClosed
 	}
 
+	s.close()
+	return nil
+}
+
+func (s *Session) close() {
 	defer internal.Cleanup()()
 
 	if internal.IsGameServer {
@@ -174,18 +213,32 @@ func (s *Session) Close() error {
 	delete(sessions, s.claimedID)
 	runtime.SetFinalizer(s, nil)
 
-	s.status = StatusClosed
-	close(s.change)
+	s.data.status = StatusClosed
+	close(s.data.change)
 
-	return nil
+	s.closed = true
 }
 
 func (s *Session) complain() {
-	if err := s.Close(); err == nil {
-		// Don't handle an error writing to Stderr because there's nothing we
-		// can do about it.
+	sessionLock.Lock()
+	defer sessionLock.Unlock()
 
-		// nolint: gosec
-		_, _ = os.Stderr.WriteString("[DEVELOPER ERROR] steamworks/steamauth: Sessions must be closed when they are no longer in use!\n")
+	if s.data != sessions[s.claimedID] || s.closed {
+		// This session was already closed.
+		return
 	}
+
+	// There is at least one other reference to this session still alive.
+	if s.data.refs != 0 {
+		s.data.refs--
+		s.closed = true
+		return
+	}
+
+	s.close()
+	// Don't handle an error writing to Stderr because there's nothing we
+	// can do about it.
+
+	// nolint: gosec
+	_, _ = os.Stderr.WriteString("[DEVELOPER ERROR] steamworks/steamauth: Sessions must be closed when they are no longer in use!\n")
 }

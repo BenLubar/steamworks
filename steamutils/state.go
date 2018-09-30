@@ -17,11 +17,6 @@ import (
 	"github.com/BenLubar/steamworks/internal"
 )
 
-// AppID returns the App ID of the current process.
-func AppID() steamworks.AppID {
-	return steamworks.AppID(internal.SteamAPI_ISteamUtils_GetAppID())
-}
-
 // CurrentBatteryPower returns the current battery power percentage from
 // 0 to 100, or 255 if the user is on AC power.
 func CurrentBatteryPower() uint8 {
