@@ -4,8 +4,6 @@
 package steamauth
 
 import (
-	"sync"
-
 	"github.com/BenLubar/steamworks"
 	"github.com/BenLubar/steamworks/internal"
 )
@@ -66,7 +64,7 @@ const (
 	StatusPublisherIssuedBan SessionStatus = SessionStatus(internal.EAuthSessionResponse_PublisherIssuedBan + 2)
 )
 
-var initOnce sync.Once
+var initOnce internal.Once
 
 func doInit() {
 	internal.RegisterCallback_ValidateAuthTicketResponse(func(data *internal.ValidateAuthTicketResponse, _ bool) {

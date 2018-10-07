@@ -185,6 +185,8 @@ func InitServer(ip net.IP, steamPort, gamePort, queryPort uint16, serverMode Ser
 func Shutdown() {
 	stopCallbackGoroutine()
 
+	internal.ResetOnce()
+
 	internal.SteamAPI_Shutdown()
 }
 
