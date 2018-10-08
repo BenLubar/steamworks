@@ -11,8 +11,8 @@ package internal
 #cgo windows LDFLAGS: -L ${SRCDIR}/lib/windows
 #cgo linux,386 LDFLAGS: -L ${SRCDIR}/lib/linux32
 #cgo linux,amd64 LDFLAGS: -L ${SRCDIR}/lib/linux64
-#cgo linux windows,386 darwin LDFLAGS: -lsteam_api -lsdkencryptedappticket
-#cgo windows,amd64 LDFLAGS: -lsteam_api64 -lsdkencryptedappticket64
+#cgo linux windows,386 darwin LDFLAGS: -lsteam_api
+#cgo windows,amd64 LDFLAGS: -lsteam_api64
 
 #include "api.gen.h"
 */
