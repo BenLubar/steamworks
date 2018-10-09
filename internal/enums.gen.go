@@ -1205,9 +1205,9 @@ func (i ESteamItemFlags) String() string {
 	}
 }
 
-const _EParentalFeature_name = "EFeatureInvalidEFeatureStoreEFeatureCommunityEFeatureProfileEFeatureFriendsEFeatureNewsEFeatureTradingEFeatureSettingsEFeatureConsoleEFeatureBrowserEFeatureParentalSetupEFeatureLibraryEFeatureTestEFeatureMax"
+const _EParentalFeature_name = "InvalidStoreCommunityProfileFriendsNewsTradingSettingsConsoleBrowserParentalSetupLibraryTestMax"
 
-var _EParentalFeature_index = [...]uint8{0, 15, 28, 45, 60, 75, 87, 102, 118, 133, 148, 169, 184, 196, 207}
+var _EParentalFeature_index = [...]uint8{0, 7, 12, 21, 28, 35, 39, 46, 54, 61, 68, 81, 88, 92, 95}
 
 func (i EParentalFeature) String() string {
 	if i < 0 || i >= EParentalFeature(len(_EParentalFeature_index)-1) {

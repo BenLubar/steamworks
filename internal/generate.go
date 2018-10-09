@@ -370,6 +370,9 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 			if e.Enumname[0] == 'E' {
 				v.Name = strings.TrimPrefix(v.Name, e.Enumname[1:])
 			}
+			if e.Enumname == "EParentalFeature" {
+				v.Name = strings.TrimPrefix(v.Name, "EFeature")
+			}
 			v.Name = strings.TrimPrefix(v.Name, "_")
 			writef("\t%s_%s %s = %s\n", e.Enumname, v.Name, e.Enumname, v.Value)
 		}
@@ -378,6 +381,9 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 	writef("\nconst (\n")
 	for _, c := range apiData.Consts {
 		c.Constname = strings.TrimLeft(c.Constname, "abcdefghijklmnopqrstuvwxyz_")
+		if strings.HasSuffix(c.Constname, "Callbacks") && c.Constname[0] == 'I' && c.Constname[1] >= 'A' && c.Constname[1] <= 'Z' {
+			c.Constname = c.Constname[1:]
+		}
 		if c.Constname == "PersonaNameMax" {
 			if c.Constval == "32" {
 				c.Constname = "PersonaNameMaxRunes"
@@ -392,13 +398,15 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 		writef("\t%s %s = %s\n", c.Constname, c.Consttype, c.Constval)
 	}
 	writef(")\n")
+	writef("var IsGameClient bool\n")
 	writef("var IsGameServer bool\n")
-	writef("func SteamAPI_Init() bool { IsGameServer = false; return bool(C.SteamAPI_Init()) }\n")
+	writef("func SteamAPI_Init() bool { if IsGameServer { panic(\"steamworks: InitClient must be called before InitServer if both are called\") }; IsGameClient = true; return bool(C.SteamAPI_Init()) }\n")
 	writef("func SteamGameServer_Init(ip uint32, steamPort, gamePort, queryPort uint16, serverMode EServerMode, versionString *C.char) bool { IsGameServer = true; return bool(C.SteamInternal_GameServer_Init(C.uint32(ip), C.uint16(steamPort), C.uint16(gamePort), C.uint16(queryPort), C.EServerMode(serverMode), versionString)) }\n")
-	writef("func SteamAPI_Shutdown() { if IsGameServer { C.SteamGameServer_Shutdown() } else { C.SteamAPI_Shutdown() } }\n")
+	writef("func SteamAPI_Shutdown() { if IsGameServer { SteamGameServer_Shutdown(); if !IsGameClient { return } }; C.SteamAPI_Shutdown(); IsGameClient = false }\n")
+	writef("func SteamGameServer_Shutdown() { C.SteamGameServer_Shutdown(); IsGameServer = false }\n")
 	writef("func SteamAPI_RestartAppIfNecessary(unOwnAppID uint32) bool { return bool(C.SteamAPI_RestartAppIfNecessary(C.uint32(unOwnAppID))) }\n")
 	writef("func SteamAPI_ReleaseCurrentThreadMemory() { C.SteamAPI_ReleaseCurrentThreadMemory() }\n")
-	writef("func SteamAPI_RunCallbacks() { if IsGameServer { C.SteamGameServer_RunCallbacks() } else { C.SteamAPI_RunCallbacks() } }\n")
+	writef("func SteamAPI_RunCallbacks() { if IsGameServer { C.SteamGameServer_RunCallbacks() }; if IsGameClient { C.SteamAPI_RunCallbacks() } }\n")
 	writef("func SteamAPI_IsSteamRunning() bool { return bool(C.SteamAPI_IsSteamRunning()) }\n")
 	writef("func SteamID_IsValid(id SteamID) bool { return bool(C.SteamID_IsValid(id)) } // wrapper\n")
 	for _, c := range classes {
@@ -417,7 +425,9 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 		writef("\tif IsGameServer {\n")
 		if isGameServer {
 			if isClient {
-				writef("\t\treturn C.GetSteamGameServer%s()\n", c[len("Steam"):])
+				writef("\t\tif !IsGameClient {\n")
+				writef("\t\t\treturn C.GetSteamGameServer%s()\n", c[len("Steam"):])
+				writef("\t\t}\n")
 			} else {
 				writef("\t\treturn C.Get%s()\n", c)
 			}
@@ -555,7 +565,7 @@ func writeFile(apiData APIData, callbacks []*CallbackDef) {
 	}
 
 	for _, c := range callbacks {
-		writef("func RegisterCallback_%[1]s(f func(*%[1]s, bool), apiCall SteamAPICall) registeredCallback { var cb registeredCallback; cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) { f((*%[1]s)(cdata), ioFailure); if apiCall != 0 { cb.Unregister() } }, unsafe.Sizeof(%[1]s{}), %[2]s + %[3]s, apiCall, IsGameServer); return cb }\n", strings.TrimSuffix(c.Name, "_t"), c.Category, c.Offset)
+		writef("func RegisterCallback_%[1]s(f func(*%[1]s, bool), apiCall SteamAPICall) registeredCallback { var cb registeredCallback; cb = registerCallback(func(cdata unsafe.Pointer, _ uintptr, ioFailure bool, _ SteamAPICall) { f((*%[1]s)(cdata), ioFailure); if apiCall != 0 { cb.Unregister() } }, unsafe.Sizeof(%[1]s{}), %[2]s + %[3]s, apiCall, !IsGameClient); return cb }\n", strings.TrimSuffix(c.Name, "_t"), c.Category, c.Offset)
 	}
 }
 
@@ -710,8 +720,8 @@ type CallbackField struct {
 }
 
 func findCallbackDefs() []*CallbackDef {
-	re1 := regexp.MustCompile(`(?m)^((?://.*\n)*)struct ([A-Za-z0-9_]+_t)\n\{ ?\n\tenum \{ k_iCallback = k_i([A-Za-z]+) \+ ([0-9]+) \};\n((?:\t.*\n|\n)*)\};$`)
-	re2 := regexp.MustCompile(`(?m)^((?://.*\n)*)DEFINE_CALLBACK\( ?([A-Za-z0-9_]+_t), k_i([A-Za-z]+) \+ ([0-9]+) ?\);?\n((?:[ \t]*CALLBACK_MEMBER\(.*\)[ \t]*(?://.*)?\n)*)END_DEFINE_CALLBACK_[0-9]+\(\)$`)
+	re1 := regexp.MustCompile(`(?m)^((?://.*\n)*)struct ([A-Za-z0-9_]+_t)\n\{ ?\n\tenum \{ k_iCallback = k_[iI]([A-Za-z]+) \+ ([0-9]+) \};\n((?:\t.*\n|\n)*)\};$`)
+	re2 := regexp.MustCompile(`(?m)^((?://.*\n)*)DEFINE_CALLBACK\( ?([A-Za-z0-9_]+_t), k_[iI]([A-Za-z]+) \+ ([0-9]+) ?\);?\n((?:[ \t]*CALLBACK_MEMBER\(.*\)[ \t]*(?://.*)?\n)*)END_DEFINE_CALLBACK_[0-9]+\(\)$`)
 
 	var defs []*CallbackDef
 

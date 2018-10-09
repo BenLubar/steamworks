@@ -334,6 +334,7 @@ typedef struct MusicPlayerWantsPlay_t MusicPlayerWantsPlay_t;
 typedef struct MusicPlayerWantsPause_t MusicPlayerWantsPause_t;
 typedef struct MusicPlayerWantsPlayPrevious_t MusicPlayerWantsPlayPrevious_t;
 typedef struct MusicPlayerWantsPlayNext_t MusicPlayerWantsPlayNext_t;
+typedef struct SteamParentalSettingsChanged_t SteamParentalSettingsChanged_t;
 typedef struct ScreenshotRequested_t ScreenshotRequested_t;
 typedef struct ItemInstalled_t ItemInstalled_t;
 typedef struct SteamServersConnected_t SteamServersConnected_t;
@@ -1315,6 +1316,8 @@ struct MusicPlayerWantsPause_t {
 struct MusicPlayerWantsPlayPrevious_t {
 };
 struct MusicPlayerWantsPlayNext_t {
+};
+struct SteamParentalSettingsChanged_t {
 };
 struct ScreenshotRequested_t {
 };
