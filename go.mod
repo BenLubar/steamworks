@@ -1,3 +1,5 @@
 module github.com/BenLubar/steamworks
 
-require golang.org/x/tools v0.0.0-20181009034425-a2b3f7f249e9 // indirect
+require golang.org/x/tools v0.0.0-20191004055002-72853e10c5a3 // indirect
+
+go 1.13
